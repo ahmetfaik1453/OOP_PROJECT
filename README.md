@@ -44,6 +44,62 @@ java -cp out library.LibraryApp
 - Add persistent storage for library items and member data
 - Expand search filters and item categories
 
+
+
+Genel çalışma mantığı
+Uygulama başlangıcı (LibraryApp)
+
+Program öğrenci numarası ister.
+studentNumber % 3 ile bir varyant seçilir (StudentConfig).
+Bu varyant, hangi üye tiplerinin kullanılacağını belirler (ör. Standard/Premium/VIP).
+Merkez yönetim (Library)
+
+Sistem iki ana map tutar:
+catalog → itemId → kitap/dergi/tez
+members → memberId → üye
+Tüm işlemler buradan yürür: item ekleme, üye ekleme, ödünç alma, iade, arama, rapor.
+Item modeli (LibraryItem + alt sınıflar)
+
+Ortak alanlar: id, title, author, isAvailable
+Alt sınıflar: Book, Magazine, Thesis
+borrow():
+item müsait değilse ItemNotAvailableException
+müsaitse üyeye eklenir, item unavailable olur
+returnItem():
+üyeden düşülür, item tekrar available olur
+calculateFine(overdueDays) günlük ceza hesabını yapar.
+Üye modeli (Member + tier sınıfları)
+
+Üye sınıfları farklı ödünç limiti ve ceza çarpanı döndürür.
+borrowItem() limit aşılırsa BorrowLimitExceededException fırlatır.
+returnItem() o item üyede yoksa hata verir.
+Tier sınıfları:
+Variant 0: Standard / Premium / VIP
+Variant 1: Basic / Silver / Gold
+Variant 2: Regular / Plus / Elite
+Factory kullanımı (MemberFactory)
+
+Seçilen varyant + tier numarasına göre doğru Member alt sınıfını üretir.
+Bu sayede LibraryApp içinde karmaşık if/switch dağılmaz.
+Menü akışı (LibraryApp.run)
+
+Kullanıcı menüden:
+Item ekler
+Üye kaydeder
+Ödünç alır
+İade eder (gecikme gününü kullanıcı girer)
+Başlık/yazar arar
+Üye raporu görür
+Müsait itemleri listeler
+Tüm giriş hataları ve iş kuralı hataları try/catch ile kullanıcıya mesaj olarak döner.
+OOP açısından
+Abstraction: LibraryItem, Member
+Inheritance: Book/Magazine/Thesis ve tüm Member tier’ları
+Polymorphism: aynı borrow/return/calculateFine çağrıları farklı sınıflarda farklı davranır
+Encapsulation: alanlar private, doğrulamalar setter/constructor içinde
+İstersen bir sonraki adımda sana bu akışı gerçek bir örnek senaryo (A üyesi B kitabını aldı, limit doldu, iade etti vs.) üzerinden adım adım simüle edebilirim.
+
+
 ## Notes
 
 This README provides an overview of the project design, structure, and usage. Update it as needed if the implementation changes or new features are added.
